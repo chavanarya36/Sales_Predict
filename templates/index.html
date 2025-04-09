@@ -1,0 +1,292 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail Predictor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+        }
+        .form-control:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+        }
+        .loading {
+            display: none;
+        }
+        .result-card {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="gradient-bg text-white p-6 shadow-md">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold">Retail Analytics Predictor</h1>
+            <p class="mt-2 opacity-90">Enter retail data to get predictions based on our ML model</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto py-8 px-4">
+        <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Input Data</h2>
+            
+            <form id="predictionForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Retailer ID -->
+                    <div>
+                        <label for="retailer_id" class="block text-sm font-medium text-gray-700 mb-1">Retailer ID</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-store text-gray-400"></i>
+                            </div>
+                            <input type="number" id="retailer_id" name="retailer_id" required
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="5378">
+                        </div>
+                    </div>
+
+                    <!-- Price per Unit -->
+                    <div>
+                        <label for="price_per_unit" class="block text-sm font-medium text-gray-700 mb-1">Price per Unit</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-tag text-gray-400"></i>
+                            </div>
+                            <input type="number" id="price_per_unit" name="price_per_unit" step="0.01" required
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="50">
+                        </div>
+                    </div>
+
+                    <!-- Units Sold -->
+                    <div>
+                        <label for="units_sold" class="block text-sm font-medium text-gray-700 mb-1">Units Sold</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-shopping-cart text-gray-400"></i>
+                            </div>
+                            <input type="number" id="units_sold" name="units_sold" required
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="26">
+                        </div>
+                    </div>
+
+                    <!-- Operating Profit -->
+                    <div>
+                        <label for="operating_profit" class="block text-sm font-medium text-gray-700 mb-1">Operating Profit</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-dollar-sign text-gray-400"></i>
+                            </div>
+                            <input type="number" id="operating_profit" name="operating_profit" step="0.01" required
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="520">
+                        </div>
+                    </div>
+
+                    <!-- Operating Margin -->
+                    <div>
+                        <label for="operating_margin" class="block text-sm font-medium text-gray-700 mb-1">Operating Margin</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-percentage text-gray-400"></i>
+                            </div>
+                            <input type="number" id="operating_margin" name="operating_margin" step="0.01" required
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                placeholder="0.4">
+                        </div>
+                    </div>
+
+                    <!-- Date Inputs -->
+                    <div class="md:col-span-2 lg:col-span-3 grid grid-cols-3 gap-4">
+                        <div>
+                            <label for="year" class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-calendar-alt text-gray-400"></i>
+                                </div>
+                                <input type="number" id="year" name="year" min="2020" max="2030" required
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    placeholder="2025">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="month" class="block text-sm font-medium text-gray-700 mb-1">Month</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-calendar-day text-gray-400"></i>
+                                </div>
+                                <input type="number" id="month" name="month" min="1" max="12" required
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    placeholder="2">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="day" class="block text-sm font-medium text-gray-700 mb-1">Day</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-calendar-week text-gray-400"></i>
+                                </div>
+                                <input type="number" id="day" name="day" min="1" max="31" required
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                    placeholder="23">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center mt-8">
+                    <button type="submit" class="py-3 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md shadow-md transition duration-300 flex items-center">
+                        <i class="fas fa-chart-line mr-2"></i>
+                        Generate Prediction
+                    </button>
+                </div>
+            </form>
+
+            <!-- Loading Indicator -->
+            <div class="loading mt-8 text-center">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+                <p class="mt-4 text-gray-600">Processing your data...</p>
+            </div>
+
+            <!-- Results Card -->
+            <div class="result-card mt-10 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Prediction Results</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-gray-600 font-medium mb-2">Input Summary</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center">
+                                <span class="w-40 font-medium">Retailer ID:</span>
+                                <span id="result-retailer-id">5378</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-40 font-medium">Price per Unit:</span>
+                                <span id="result-price">$50.00</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-40 font-medium">Units Sold:</span>
+                                <span id="result-units">26</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-40 font-medium">Operating Profit:</span>
+                                <span id="result-profit">$520.00</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-40 font-medium">Operating Margin:</span>
+                                <span id="result-margin">40%</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-40 font-medium">Date:</span>
+                                <span id="result-date">2025-02-23</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 shadow">
+                        <h4 class="text-gray-600 font-medium mb-2">Model Prediction</h4>
+                        <div class="flex items-center justify-center h-32">
+                            <div class="text-center">
+                                <span class="block text-3xl font-bold text-indigo-600" id="prediction-value">0</span>
+                                <span class="text-sm text-gray-500 mt-2 block">Predicted Value</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Alert -->
+            <div id="error-alert" class="hidden mt-6 bg-red-50 border-l-4 border-red-500 p-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-500 mt-0.5"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Error</h3>
+                        <div class="mt-1 text-sm text-red-700" id="error-message">
+                            Something went wrong. Please try again.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2025 Retail Analytics Predictor. All rights reserved.</p>
+            <p class="text-gray-400 text-sm mt-2">Powered by Machine Learning</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('predictionForm');
+            const loadingIndicator = document.querySelector('.loading');
+            const resultCard = document.querySelector('.result-card');
+            const errorAlert = document.getElementById('error-alert');
+            const errorMessage = document.getElementById('error-message');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Hide any previous results or errors
+                resultCard.style.display = 'none';
+                errorAlert.style.display = 'none';
+                
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                
+                // Collect form data
+                const formData = new FormData(form);
+                
+                // Send request to server
+                fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    
+                    if (data.error) {
+                        // Show error message
+                        errorMessage.textContent = data.error;
+                        errorAlert.style.display = 'block';
+                    } else {
+                        // Update result display
+                        document.getElementById('result-retailer-id').textContent = data.input_data.retailer_id;
+                        document.getElementById('result-price').textContent = '$' + data.input_data.price_per_unit.toFixed(2);
+                        document.getElementById('result-units').textContent = data.input_data.units_sold;
+                        document.getElementById('result-profit').textContent = '$' + data.input_data.operating_profit.toFixed(2);
+                        document.getElementById('result-margin').textContent = (data.input_data.operating_margin * 100).toFixed(0) + '%';
+                        document.getElementById('result-date').textContent = data.input_data.date;
+                        
+                        document.getElementById('prediction-value').textContent = data.prediction.toFixed(2);
+                        
+                        // Show result card
+                        resultCard.style.display = 'block';
+                        
+                        // Scroll to results
+                        resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                })
+                .catch(error => {
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    
+                    // Show error message
+                    errorMessage.textContent = 'Network error. Please try again.';
+                    errorAlert.style.display = 'block';
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
