@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retail Predictor</title>
+    <title>Adidas Sales Predictor</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -21,12 +21,24 @@
         .result-card {
             display: none;
         }
+        .history-section {
+            display: none;
+        }
+        .history-loading {
+            display: none;
+        }
+        .history-table {
+            overflow-x: auto;
+        }
+        .history-table table {
+            min-width: 100%;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <header class="gradient-bg text-white p-6 shadow-md">
         <div class="container mx-auto">
-            <h1 class="text-3xl font-bold">Retail Analytics Predictor</h1>
+            <h1 class="text-3xl font-bold">Adidas Sales Predictor</h1>
             <p class="mt-2 opacity-90">Enter retail data to get predictions based on our ML model</p>
         </div>
     </header>
@@ -213,6 +225,63 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- View History Button -->
+            <div class="mt-10 flex justify-center">
+                <button id="viewHistoryBtn" class="py-3 px-8 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-md transition duration-300 flex items-center">
+                    <i class="fas fa-history mr-2"></i>
+                    View Prediction History
+                </button>
+            </div>
+            
+            <!-- History Section -->
+            <div class="history-section mt-10 bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">Prediction History</h3>
+                    <div class="flex space-x-2">
+                        <button id="downloadCsvBtn" class="py-2 px-4 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow transition duration-300 flex items-center">
+                            <i class="fas fa-file-csv mr-2"></i>
+                            Download CSV
+                        </button>
+                        <button id="downloadJsonBtn" class="py-2 px-4 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-md shadow transition duration-300 flex items-center">
+                            <i class="fas fa-file-code mr-2"></i>
+                            Download JSON
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- History Loading Indicator -->
+                <div class="history-loading text-center py-8">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+                    <p class="mt-4 text-gray-600">Loading history...</p>
+                </div>
+                
+                <!-- History Table -->
+                <div class="history-table">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Retailer ID</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Units</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profit</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Margin</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prediction</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- History rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- No History Message -->
+                <div id="noHistoryMessage" class="hidden py-8 text-center">
+                    <p class="text-gray-500">No prediction history available yet. Make some predictions first!</p>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -230,6 +299,15 @@
             const resultCard = document.querySelector('.result-card');
             const errorAlert = document.getElementById('error-alert');
             const errorMessage = document.getElementById('error-message');
+            const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+            const historySection = document.querySelector('.history-section');
+            const historyLoading = document.querySelector('.history-loading');
+            const historyTableBody = document.getElementById('historyTableBody');
+            const noHistoryMessage = document.getElementById('noHistoryMessage');
+            const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+            const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+            
+            let historyVisible = false;
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -274,6 +352,11 @@
                         
                         // Scroll to results
                         resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // If history is visible, refresh it
+                        if (historyVisible) {
+                            loadHistory();
+                        }
                     }
                 })
                 .catch(error => {
@@ -286,6 +369,85 @@
                     console.error('Error:', error);
                 });
             });
+            
+            // View History Button
+            viewHistoryBtn.addEventListener('click', function() {
+                historyVisible = !historyVisible;
+                
+                if (historyVisible) {
+                    historySection.style.display = 'block';
+                    viewHistoryBtn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i> Hide Prediction History';
+                    viewHistoryBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    viewHistoryBtn.classList.add('bg-gray-600', 'hover:bg-gray-700');
+                    loadHistory();
+                    historySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    historySection.style.display = 'none';
+                    viewHistoryBtn.innerHTML = '<i class="fas fa-history mr-2"></i> View Prediction History';
+                    viewHistoryBtn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+                    viewHistoryBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                }
+            });
+            
+            // Download buttons
+            downloadCsvBtn.addEventListener('click', function() {
+                window.location.href = '/download-history?format=csv';
+            });
+            
+            downloadJsonBtn.addEventListener('click', function() {
+                window.location.href = '/download-history?format=json';
+            });
+            
+            // Function to load history data
+            function loadHistory() {
+                // Show loading indicator
+                historyTableBody.innerHTML = '';
+                historyLoading.style.display = 'block';
+                noHistoryMessage.style.display = 'none';
+                
+                // Fetch history data
+                fetch('/history')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Hide loading indicator
+                        historyLoading.style.display = 'none';
+                        
+                        if (data.error) {
+                            console.error('Error loading history:', data.error);
+                            noHistoryMessage.textContent = 'Error loading history: ' + data.error;
+                            noHistoryMessage.style.display = 'block';
+                            return;
+                        }
+                        
+                        if (data.length === 0) {
+                            noHistoryMessage.style.display = 'block';
+                            return;
+                        }
+                        
+                        // Populate table with history data
+                        data.reverse().forEach(item => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.timestamp || 'N/A'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.input_data.retailer_id}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$${item.input_data.price_per_unit.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.input_data.units_sold}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$${item.input_data.operating_profit.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${(item.input_data.operating_margin * 100).toFixed(0)}%</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.input_data.date}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">${item.prediction.toFixed(2)}</td>
+                            `;
+                            historyTableBody.appendChild(row);
+                        });     
+                    })
+                    .catch(error => {
+                        // Hide loading indicator
+                        historyLoading.style.display = 'none';
+                        noHistoryMessage.textContent = 'Error loading history. Please try again.';
+                        noHistoryMessage.style.display = 'block';
+                        console.error('Error:', error);
+                    });
+            }
         });
     </script>
 </body>

@@ -1,0 +1,54 @@
+[
+    {
+        "success": true,
+        "prediction": 604607.5,
+        "input_data": {
+            "retailer_id": 1185732,
+            "price_per_unit": 50.0,
+            "units_sold": 1200,
+            "operating_profit": 300000.0,
+            "operating_margin": 0.5,
+            "date": "2020-01-01"
+        },
+        "timestamp": "2025-04-28 17:16:11"
+    },
+    {
+        "success": true,
+        "prediction": 60800.0,
+        "input_data": {
+            "retailer_id": 1285735,
+            "price_per_unit": 60.0,
+            "units_sold": 900,
+            "operating_profit": 30000.0,
+            "operating_margin": 0.6,
+            "date": "2025-01-01"
+        },
+        "timestamp": "2025-04-28 17:16:44"
+    },
+    {
+        "success": true,
+        "prediction": 162130.0,
+        "input_data": {
+            "retailer_id": 135342,
+            "price_per_unit": 59.0,
+            "units_sold": 3000,
+            "operating_profit": 49000.0,
+            "operating_margin": 0.3,
+            "date": "2023-10-12"
+        },
+        "timestamp": "2025-04-28 17:17:17"
+    },
+    {
+        "success": true,
+        "prediction": 79525.0,
+        "input_data": {
+            "retailer_id": 1185732,
+            "price_per_unit": 50.0,
+            "units_sold": 1200,
+            "operating_profit": 32000.0,
+            "operating_margin": 0.4,
+            "date": "2020-01-01"
+        },
+        "timestamp": "2025-04-29 21:21:01"
+    }
+]
