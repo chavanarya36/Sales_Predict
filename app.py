@@ -177,4 +177,4 @@ if __name__ == '__main__':
     # Create necessary directories
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
     os.makedirs(os.path.dirname(HISTORY_PATH), exist_ok=True)
-    app.run(debug=True)
+   app.run(host='0.0.0.0', port=5000,debug=True)
