@@ -2,42 +2,43 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-        IMAGE_NAME = 'arya3669/as' //changing commiting 
+        dockerhub_credentials = credentials('dockerhub-creds')
+        image_name = 'arya3669/as'
     }
 
     stages {
-        stage('Checkout') {
+        stage('checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/chavanarya36/Sales_Predict.git'
+                git branch: 'master', url: 'https://github.com/chavanarya36/sales_predict.git'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('build docker image') {
             steps {
-                bat "docker build -t %IMAGE_NAME% ."
+                bat "docker build -t %image_name% ."
             }
         }
 
-        stage('Run Tests in Docker') {
-    steps {
-        bat "docker run --rm %IMAGE_NAME% python -m pytest tests"
-    }
-}
-
-stage('Push Docker Image') {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            bat "echo %PASSWORD% | docker login -u %USERNAME% --password-stdin"
-            bat "docker push %IMAGE_NAME%"
-        }
-    }
-}
-
-
-        stage('Deploy') {
+        stage('run tests in docker') {
             steps {
-                bat 'docker run -d -p 5000:5000 %IMAGE_NAME%'
+                bat "docker run --rm %image_name% python -m pytest tests"
+            }
+        }
+
+        stage('push docker image') {
+            steps {
+                withcredentials([usernamepassword(credentialsid: 'dockerhub-creds', usernamevariable: 'username', passwordvariable: 'password')]) {
+                    bat '''
+                    echo %password% | docker login -u %username% --password-stdin
+                    docker push %image_name%
+                    '''
+                }
+            }
+        }
+
+        stage('deploy') {
+            steps {
+                bat 'docker run -d -p 5000:5000 %image_name%'
             }
         }
     }
