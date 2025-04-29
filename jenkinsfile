@@ -2,43 +2,43 @@ pipeline {
     agent any
 
     environment {
-        dockerhub_credentials = credentials('dockerhub-creds')
-        image_name = 'arya3669/as'
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+        IMAGE_NAME = 'arya3669/as'
     }
 
     stages {
-        stage('checkout') {
+        stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/chavanarya36/sales_predict.git'
+                git branch: 'master', url: 'https://github.com/chavanarya36/Sales_Predict.git'
             }
         }
 
-        stage('build docker image') {
+        stage('Build Docker Image') {
             steps {
-                bat "docker build -t %image_name% ."
+                bat "docker build -t %IMAGE_NAME% ."
             }
         }
 
-        stage('run tests in docker') {
+        stage('Run Tests in Docker') {
             steps {
-                bat "docker run --rm %image_name% python -m pytest tests"
+                bat "docker run --rm %IMAGE_NAME% python -m pytest tests"
             }
         }
 
-        stage('push docker image') {
+        stage('Push Docker Image') {
             steps {
-                withcredentials([usernamepassword(credentialsid: 'dockerhub-creds', usernamevariable: 'username', passwordvariable: 'password')]) {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     bat '''
-                    echo %password% | docker login -u %username% --password-stdin
-                    docker push %image_name%
+                    echo %PASSWORD% | docker login -u %USERNAME% --password-stdin
+                    docker push %IMAGE_NAME%
                     '''
                 }
             }
         }
 
-        stage('deploy') {
+        stage('Deploy') {
             steps {
-                bat 'docker run -d -p 5000:5000 %image_name%'
+                bat 'docker run -d -p 5000:5000 %IMAGE_NAME%'
             }
         }
     }
