@@ -2,44 +2,47 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-        IMAGE_NAME = 'arya3669/as'
+        IMAGE_NAME = 'sales_predict_image'
+        CONTAINER_NAME = 'sales_predict_container'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/chavanarya36/Sales_Predict.git'
+                git 'https://github.com/chavanarya36/Sales_Predict.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat "docker build -t %IMAGE_NAME% ."
-            }
-        }
-
-        stage('Run Tests in Docker') {
-            steps {
-                bat "docker run --rm %IMAGE_NAME% python -m pytest tests"
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    bat '''
-                    echo %PASSWORD% | docker login -u %USERNAME% --password-stdin
-                    docker push %IMAGE_NAME%
-                    '''
+                script {
+                    docker.build(IMAGE_NAME)
                 }
             }
         }
 
-        stage('Deploy') {
+        stage('Run Tests') {
             steps {
-                bat 'docker run -d -p 5000:5000 %IMAGE_NAME%'
+                script {
+                    docker.image(IMAGE_NAME).inside {
+                        sh 'pip install -r requirements.txt'
+                        sh 'pip install pytest'
+                        sh 'pytest tests/'
+                    }
+                }
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up...'
+        }
+        success {
+            echo 'Tests passed!'
+        }
+        failure {
+            echo 'Tests failed.'
         }
     }
 }
